@@ -7,6 +7,7 @@ pub enum Error {
     SerializationError(String),
     NetworkError(String),
     ApiError(String),
+    ArgumentError(String),
 }
 
 impl fmt::Display for Error {
@@ -17,6 +18,7 @@ impl fmt::Display for Error {
             Error::SerializationError(g) => g,
             Error::NetworkError(g) => g,
             Error::ApiError(g) => g,
+            Error::ArgumentError(g) => g,
         };
         write!(f, "{}", text)
     }

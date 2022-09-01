@@ -10,6 +10,17 @@ impl Client {
         start: DateTime<FixedOffset>,
         end: DateTime<FixedOffset>,
     ) -> Result<Vec<(DateTime<Utc>, f64)>, Error> {
+        // NOTE: Webport does not support specifying sub-second times.
+        if start.nanosecond() > 0 {
+            return Err(Error::ArgumentError(format!(
+                "Start cannot contain sub-seconds.",
+            )));
+        } else if end.nanosecond() > 0 {
+            return Err(Error::ArgumentError(format!(
+                "End cannot contain sub-seconds.",
+            )));
+        }
+
         let encoded: String = form_urlencoded::Serializer::new(String::new())
             .append_pair("start", &start.to_rfc3339())
             .append_pair("end", &end.to_rfc3339())
@@ -35,11 +46,12 @@ impl Client {
         let mut list = vec![];
         for (key, value) in map {
             // Parse time and convert to UTC.
-            let key = match Local.datetime_from_str(key, "%+") {
+            // %Y-%m-%dT%H:%M:%S%.f%:z
+            let key = match DateTime::parse_from_str(key, "%+") {
                 Ok(t) => t.with_timezone(&Utc),
                 Err(err) => {
                     return Err(Error::ParseError(format!(
-                        "Could not parse tag history for tag key \"{}\" with input {} ({}).",
+                        "Could not parse tag history for tag key \"{}\" with input \"{}\" ({}).",
                         tag_key,
                         key,
                         err.to_string(),
