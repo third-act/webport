@@ -23,3 +23,5 @@ impl fmt::Display for Error {
         write!(f, "{}", text)
     }
 }
+
+impl std::error::Error for Error {}
