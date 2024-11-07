@@ -43,7 +43,26 @@ impl Client {
                     key: tag_key.to_string(),
                     description: partial_tag.description.clone(),
                     unit: partial_tag.unit.clone(),
-                    value: value,
+                    value,
+                    status: partial_tag.status.clone(),
+                }
+            }
+            "INT" => {
+                let value = match partial_tag.value.parse::<f64>() {
+                    Ok(value) => value,
+                    Err(err) => {
+                        return Err(Error::ParseError(format!(
+                            "Could not parse tag value ({}).",
+                            err.to_string()
+                        )));
+                    }
+                };
+
+                Tag::Int {
+                    key: tag_key.to_string(),
+                    description: partial_tag.description.clone(),
+                    unit: partial_tag.unit.clone(),
+                    value,
                     status: partial_tag.status.clone(),
                 }
             }
